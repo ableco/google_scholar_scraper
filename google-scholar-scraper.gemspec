@@ -2,11 +2,11 @@
 
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "google/scholar/scraper/version"
+require "google_scholar_scraper/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "google-scholar-scraper"
-  spec.version       = Google::Scholar::Scraper::VERSION
+  spec.name          = "google_scholar_scraper"
+  spec.version       = GoogleScholarScraper::VERSION
   spec.authors       = ["Able Co."]
   spec.email         = ["engineering@able.co"]
 
