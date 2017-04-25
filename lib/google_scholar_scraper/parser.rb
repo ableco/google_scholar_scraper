@@ -46,7 +46,7 @@ module GoogleScholarScraper
         # article pdf url
         y = article.css(".gsc_a_y .gsc_a_h").children.first
         year = y.nil? ? nil : y.text.scan(/\d+/).first
-        articles_arr << GoogleScholar::Scraper::Article.new(title, link, nil, year)
+        articles_arr << Article.new(title, link, nil, year)
       end
 
       articles_arr
