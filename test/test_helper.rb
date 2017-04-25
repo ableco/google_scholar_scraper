@@ -1,4 +1,4 @@
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
-require 'google/scholar/scraper'
+$LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
+require "google/scholar/scraper"
 
-require 'minitest/autorun'
+require "minitest/autorun"
