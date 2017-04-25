@@ -35,7 +35,7 @@ module GoogleScholarScraper
 
       articles_arr = []
       articles_wrap = html_response.css(".gsc_a_tr")
-      return if articles_wrap.count.zero?
+      return [] if articles_wrap.count.zero?
 
       articles_wrap.each do |article|
         h3 = article.css(".gsc_a_at").first
