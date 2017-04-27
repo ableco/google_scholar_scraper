@@ -11,7 +11,7 @@ module GoogleScholarScraper
     def find_articles(google_scholar_id: nil)
       raise ArgumentError, "A 'google_scholar_id' param is required" if google_scholar_id.nil?
       request = @last_request = new_request(google_scholar_id)
-      Parser.new(request.get).parse
+      Parser.new(request.execute).parse
     end
 
     private

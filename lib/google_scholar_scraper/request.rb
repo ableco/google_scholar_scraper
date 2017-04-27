@@ -1,28 +1,39 @@
 require "nokogiri"
 require "rest-client"
 require "useragents"
+require_relative "proxy_lookup"
 
 module GoogleScholarScraper
   # Wrapper for making the requests to Google Scholar
   class Request
     BASE_URL = "https://scholar.google.com".freeze
+    MAX_RETRIES = 5
 
     def initialize(path, last_request = nil)
       @path = path
       @previous_user_agent = last_request.user_agent if last_request
     end
 
-    def get
-      logger.info("GoogleScholarScraper: Requesting #{path} with user agent #{user_agent}")
-      Nokogiri::HTML(
-        RestClient::Request.execute(
-          url: request_url,
-          method: :get,
-          verify_ssl: false,
-          user_agent: user_agent,
-          proxy: GoogleScholarScraper.configuration.proxy_url
-        )
-      )
+    def execute
+      Nokogiri::HTML(execute_with_retries)
+    end
+
+    def execute_with_retries
+      begin
+        response = google_scholar_request
+      rescue RestClient::Forbidden, Net::HTTPServerException, Net::HTTPBadResponse,
+             Net::HTTPHeaderSyntaxError, Net::ProtocolError, Errno::EINVAL,
+             Errno::ECONNRESET, EOFError => err
+        @retries ||= 0
+
+        if @retries < MAX_RETRIES || net_http_error?(err)
+          @retries += 1
+          retry
+        else
+          raise err
+        end
+      end
+      response
     end
 
     def user_agent
@@ -32,6 +43,18 @@ module GoogleScholarScraper
     private
 
     attr_reader :path, :previous_user_agent
+
+    def google_scholar_request
+      proxy_url = ProxyLookup.new_tested_proxy
+      logger.info("GoogleScholarScraper: Requesting #{path} with user agent #{user_agent} and proxy #{proxy_url}")
+      RestClient::Request.execute(
+        url: request_url,
+        method: :get,
+        verify_ssl: false,
+        user_agent: user_agent,
+        proxy: proxy_url
+      )
+    end
 
     def generate_user_agent
       tmp_user_agent = UserAgents.rand
@@ -45,6 +68,11 @@ module GoogleScholarScraper
 
     def logger
       GoogleScholarScraper.configuration.logger
+    end
+
+    def net_http_error?(err)
+      err.response.is_a?(Net::HTTPForbidden) ||
+        err.response.is_a?(Net::HTTPFatalError)
     end
   end
 end
