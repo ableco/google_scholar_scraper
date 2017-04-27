@@ -26,7 +26,7 @@ module GoogleScholarScraper
              Errno::ECONNRESET, EOFError => err
         @retries ||= 0
 
-        if @retries < MAX_RETRIES || net_http_error?(err)
+        if @retries < max_retries_limit || net_http_error?(err)
           @retries += 1
           retry
         else
@@ -43,6 +43,10 @@ module GoogleScholarScraper
     private
 
     attr_reader :path, :previous_user_agent
+
+    def max_retries_limit
+      GoogleScholarScraper.configuration.max_retries_limit
+    end
 
     def google_scholar_request
       proxy_url = ProxyLookup.new_tested_proxy

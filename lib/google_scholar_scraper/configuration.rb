@@ -1,18 +1,22 @@
 module GoogleScholarScraper
   # Configuration class for Google Scholar
   class Configuration
-    # The proxy url to use for the requests to Google Scholar.
-    # Defaults to `nil`, which causes the requests to be run in
-    # simple mode.
-    # @return [String]
-    attr_accessor :proxy_url
+    # Sets the retry limit requesting to Google Scholar
+    # Defaults to `5`
+    # @return [Number]
+    attr_accessor :max_retries_limit
 
-    # Sets the logging utility to be used for log requests
+    # Sets the API key for getproxylist.com
+    # Defaults to `nil`. This will cause an exception.
+    attr_accessor :get_proxy_api_key
+
+    # Sets the logger to be used when making requests.
     # @return [Logger]
     attr_accessor :logger
 
     def initialize
-      @proxy_url = nil
+      @max_retries_limit = 5
+      @get_proxy_api_key = nil
       @logger = Logger.new(STDOUT)
     end
   end
