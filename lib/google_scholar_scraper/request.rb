@@ -7,12 +7,6 @@ module GoogleScholarScraper
   # Wrapper for making the requests to Google Scholar
   class Request
     BASE_URL = "https://scholar.google.com".freeze
-    ERROR_EXCEPTIONS = [
-      RestClient::Forbidden, RestClient::ServerBrokeConnection, Net::HTTPServerException,
-      Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError,
-      Errno::EINVAL, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError,
-      Timeout::Error
-    ].freeze
 
     def initialize(path, last_request = nil)
       @path = path
@@ -26,14 +20,13 @@ module GoogleScholarScraper
     def execute_with_retries
       begin
         response = google_scholar_request
-      rescue *ERROR_EXCEPTIONS => err
+      rescue StandardError => error
         @retries ||= 0
-
         if @retries < max_retries_limit
           @retries += 1
           retry
         else
-          raise err
+          raise error
         end
       end
       response
