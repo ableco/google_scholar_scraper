@@ -10,7 +10,8 @@ module GoogleScholarScraper
     ERROR_EXCEPTIONS = [
       RestClient::Forbidden, RestClient::ServerBrokeConnection, Net::HTTPServerException,
       Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError,
-      Errno::EINVAL, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError
+      Errno::EINVAL, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError,
+      Timeout::Error
     ].freeze
 
     def initialize(path, last_request = nil)
@@ -28,7 +29,7 @@ module GoogleScholarScraper
       rescue *ERROR_EXCEPTIONS => err
         @retries ||= 0
 
-        if @retries < max_retries_limit || net_http_error?(err)
+        if @retries < max_retries_limit
           @retries += 1
           retry
         else
@@ -74,11 +75,6 @@ module GoogleScholarScraper
 
     def logger
       GoogleScholarScraper.configuration.logger
-    end
-
-    def net_http_error?(err)
-      err.response.is_a?(Net::HTTPForbidden) ||
-        err.response.is_a?(Net::HTTPFatalError)
     end
   end
 end
